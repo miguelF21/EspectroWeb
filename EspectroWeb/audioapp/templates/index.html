@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/styles.css">
+    <title>Procesador de Audio para Detección Temprana de Alarmas</title>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Asegura que el body ocupe al menos la altura de la pantalla */
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .container {
+            flex-grow: 1; /* Permite que el contenedor ocupe el espacio disponible */
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #audioButton {
+            background-color: #28a745;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #audioButton:hover {
+            background-color: #218838;
+        }
+        #resultado {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #audioGraphic {
+            display: none;
+            margin-top: 30px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            padding: 15px;
+            background-color: #fff;
+        }
+        #audioGraphicContainer {
+            margin-top: 40px;
+        }
+        #audioGraphic + #audioGraphic {
+            margin-top: 40px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 10px; /* Reducido padding para footer */
+            width: 100%;
+            margin-top: auto; /* Asegura que el footer esté al final de la página */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Procesador de Audio en Tiempo Real</h1>
+        <h4>Herramienta diseñada para la detección temprana de alarmas en el sector petrolero mediante el análisis de frecuencias de audio.</h4>
+        
+    </header>
+
+    <div class="container">
+        <section>
+            
+            <h2>Descripción del Sistema</h2>
+            <p>Este procesador de audio en tiempo real está orientado a detectar alarmas y otros sonidos críticos en instalaciones petroleras. Utilizando técnicas de procesamiento de señales, el sistema puede identificar patrones acústicos anormales que indican situaciones de riesgo, como fugas de gas o fallas mecánicas, lo que permite una intervención temprana y mejora la seguridad.</p>
+        </section>
+
+        <section>
+            <h2>Funcionamiento</h2>
+            <p>Cuando se presiona el botón de "Procesar Audio", el sistema captura las señales de audio en tiempo real, realiza un análisis de frecuencia y magnitud, y presenta los resultados visualmente. Estos resultados incluyen la frecuencia máxima detectada y la magnitud asociada, así como un gráfico de la señal procesada.</p>
+        </section>
+
+        <button id="audioButton">Procesar Audio</button>
+
+        <div id="resultado"></div>
+
+        <div id="audioGraphicContainer">
+            <img id="audioGraphic" src="" alt="Gráfico de Procesamiento de Audio" />
+            
+        </div>
+
+        <section>
+            <h2>Resultados de la Detección</h2>
+            <p>Los resultados se presentan en función de los parámetros de frecuencia y magnitud. Un análisis más detallado de estas mediciones puede ayudar a identificar posibles alarmas antes de que ocurran fallos graves en el sistema.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Procesador de Audio para Alarmas Petroleras. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.getElementById('audioButton').addEventListener('click', () => {
+            fetch('/procesar_audio/', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('resultado').innerText = 
+                    `Frecuencia máxima: ${data.frecuencia_max} Hz, Magnitud máxima: ${data.magnitud_max}`;
+                
+                // Mostrar los gráficos
+                const graphic1 = document.getElementById('audioGraphic');
+                graphic1.src = `data:image/png;base64,${data.graphic}`;
+                graphic1.style.display = 'block';
+
+                // Mostrar un segundo gráfico si es necesario
+                const graphic2 = document.getElementById('audioGraphic2');
+                graphic2.src = `data:image/png;base64,${data.graphic2}`;
+                graphic2.style.display = 'block';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
